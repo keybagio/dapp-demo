@@ -1,4 +1,6 @@
 const ethereum = window.ethereum;
+
+// 构造请求体
 const req = (data) => {
   return {
     "jsonrpc": "2.0",
@@ -7,46 +9,65 @@ const req = (data) => {
     ...data,
   }
 }
+
+/**
+ * 检测对象是否存在
+ * @param {*} v 检查的对象
+ * @returns 返回值（undefined | string | array | JSON object | typeof(v)）
+ *  - 
+ */
+const checkExist = (v) => {
+  if (typeof v === 'undefined') {
+    return Promise.reject('undefined');
+  }
+
+  if ((typeof v === 'string') || (v instanceof Array)) {
+    return Promise.resolve(v);
+  }
+
+  try {
+    const strV = JSON.stringify(v, null, 2);
+    return Promise.resolve(strV);
+  } catch (e) {
+    return Promise.resolve(typeof v);
+  }
+}
+
+/**
+ * 任务类型：
+ * 1. checkExist() —— 检测对象是否存在
+ * 2. return Promise —— then获取成功值，catch获取失败原因，如 ethereum.request
+ * 3. callback(err, response) —— 通过回调返回结果，第一个参数是错误原因，第二个参数是数据，如 ethereum.sendAsync
+ * 4. checkMatch() —— 检测获取到的值是否与预期相符
+ */
 const tasks = [
   {
-    name: 'typeof window.ethereum',
-    test: () => {
-      if (window.ethereum) {
-        return Promise.resolve(typeof window.ethereum);
-      } else {
-        return Promise.reject(typeof window.ethereum);
-      }
-    }
+    name: 'checkExist(window.ethereum)',
+    test: () => checkExist(window.ethereum)
   },
   {
-    name: 'typeof window.web3',
-    test: () => {
-      if (window.web3) {
-        return Promise.resolve(typeof window.web3);
-      } else {
-        return Promise.reject(typeof window.web3);
-      }
-    }
+    name: 'checkExist(window.web3)',
+    test: () => checkExist(window.web3)
   },
   {
-    name: 'ethereum.isMetaMask',
-    test: () => Promise.resolve(ethereum.isMetaMask)
+    name: 'checkExist(ethereum.isMetaMask)',
+    test: () => checkExist(ethereum.isMetaMask)
   },
   {
-    name: 'ethereum.chainId',
-    test: () => Promise.resolve(ethereum.chainId)
+    name: 'checkExist(ethereum.chainId)',
+    test: () => checkExist(ethereum.chainId)
   },
   {
-    name: 'ethereum.networkVersion (旧)',
-    test: () => Promise.resolve(ethereum.networkVersion)
+    name: 'checkExist(ethereum.networkVersion) (旧)',
+    test: () => checkExist(ethereum.networkVersion)
   },
   {
-    name: 'ethereum.selectedAddress (旧)',
-    test: () => Promise.resolve(ethereum.selectedAddress)
+    name: 'checkExist(ethereum.selectedAddress) (旧)',
+    test: () => checkExist(ethereum.selectedAddress)
   },
   {
-    name: 'ethereum.isConnected()',
-    test: () => Promise.resolve(ethereum.isConnected())
+    name: 'checkExist(ethereum.isConnected())',
+    test: () => checkExist(ethereum.isConnected())
   },
   {
     name: 'ethereum.enable() (旧)',

@@ -17,7 +17,7 @@
           <div class="value">执行中……</div>
         </div>
         <div v-if="taskDetail.status === 'success'">
-          <div class="value">{{taskDetail.response}}</div>
+          <div class="value"><pre>{{taskDetail.response}}</pre></div>
         </div>
         <div v-if="taskDetail.status === 'error'">
           <div class="value">{{taskDetail.error}}</div>
@@ -66,40 +66,43 @@ export default {
 
       try {
         testFunc().then((response) => {
-          if (this.taskDetail.name === taskName) {
-            this.taskDetail = {
-              name: taskName,
-              status: 'success',
-              response: typeof response === 'string' ? response : JSON.stringify(response),
-            }
-            this.tasks[taskIndex].status = 'success';
-            this.tasks = [...this.tasks];
-          }
+          this.handleSuccess(taskIndex, taskName, response);
         }).catch((e) => {
-          if (this.taskDetail.name === taskName) {
-            let error;
-            try {
-              error = JSON.stringify(e);
-            } catch(e) {
-              error = e;
-            }
-
-            this.taskDetail = {
-              name: taskName,
-              status: 'error',
-              error,
-            }
-          }
+          this.handleError(taskIndex, taskName, e);
         });
       } catch(e) {
-        if (this.taskDetail.name === taskName) {
-          const error = e.toString();
-
-          this.taskDetail = {
-            name: taskName,
-            status: 'Error',
-            error,
+        this.handleError(taskIndex, taskName, e);
+      }
+    },
+    handleSuccess (taskIndex, taskName, response) {
+      if (this.taskDetail.name === taskName) {
+        this.taskDetail = {
+          name: taskName,
+          status: 'success',
+          response: typeof response === 'string' ? response : JSON.stringify(response),
+        }
+        this.tasks[taskIndex].status = 'success';
+        this.tasks = [...this.tasks];
+      }
+    },
+    handleError (taskIndex, taskName, err) {
+      if (this.taskDetail.name === taskName) {
+        let error;
+        try {
+          if (err instanceof Error) {
+            error = err.toString();
+          } else if (typeof err === 'string') {
+            error = err;
+          } else {
+            error = JSON.stringify(err);
           }
+        } catch(e) {
+          error = e.toString();
+        }
+        this.taskDetail = {
+          name: taskName,
+          status: 'error',
+          error,
         }
       }
     }
