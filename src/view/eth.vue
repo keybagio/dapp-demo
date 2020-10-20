@@ -23,13 +23,17 @@
           <div class="value">{{taskDetail.error}}</div>
         </div>
       </div>
+      <div v-if="taskDetail.desc" class="task-desc">
+        <div class="label">任务说明：</div>
+        <div class="value"><pre>{{taskDetail.desc}}</pre></div>
+      </div>
     </div>
 
     <!-- 任务列表 -->
     <div class="task-wrap">
       <div class="task-tips">选择任务</div>
       <div class="task-list">
-        <div v-for="(task, index) in tasks" :key="index" :class="'task-list-item ' + task.status" v-on:click="handleTask(index, task.name, task.test)">
+        <div v-for="(task, index) in tasks" :key="index" :class="'task-list-item ' + task.status" v-on:click="handleTask(index, task.name, task.test, task.desc)">
           <div class="number">{{index + 1}}</div>
           <div>{{task.name}}</div>
         </div>
@@ -51,17 +55,19 @@ export default {
         status: '', // Pending | Success | Error
         response: '',
         error: '',
+        desc: '',
       },
     }
   },
   methods: {
-    handleTask (taskIndex, taskName, testFunc) {
+    handleTask (taskIndex, taskName, testFunc, testDesc) {
       console.log('taskName', taskName);
       this.taskDetail = {
         name: taskName,
         status: 'pending',
         response: '',
         error: '',
+        desc: testDesc,
       };
 
       try {
@@ -77,6 +83,7 @@ export default {
     handleSuccess (taskIndex, taskName, response) {
       if (this.taskDetail.name === taskName) {
         this.taskDetail = {
+          ...this.taskDetail,
           name: taskName,
           status: 'success',
           response: typeof response === 'string' ? response : JSON.stringify(response),
@@ -100,6 +107,7 @@ export default {
           error = e.toString();
         }
         this.taskDetail = {
+          ...this.taskDetail,
           name: taskName,
           status: 'error',
           error,
@@ -173,6 +181,11 @@ export default {
   background-color: red;
 }
 .task-result .value {
+  padding: 10px;
+  text-align: left;
+  overflow-wrap: break-word;
+}
+.task-desc .value {
   padding: 10px;
   text-align: left;
   overflow-wrap: break-word;
