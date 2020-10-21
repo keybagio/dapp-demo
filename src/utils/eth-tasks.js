@@ -15,6 +15,20 @@ const req = (data) => {
 }
 
 /**
+ * 构造测试说明
+ * @param {*} testMessage 
+ * @param {*} exspectResult 
+ */
+const createDesc = (testMessage, exspectResult) => {
+  return `
+测试地址: ${testAddress}
+测试密钥: ${testKey}
+测试消息: ${testMessage}
+预期结果: ${exspectResult} 
+  `;
+}
+
+/**
  * 检测对象是否存在
  * @param {*} v 检查的对象
  * @returns 返回值（undefined | string | array | JSON object | typeof(v)）
@@ -162,31 +176,33 @@ const tasks = [
     test: () => ethereum.request(req({method: 'eth_uninstallFilter', "params":["0xb"]}))
   },
   {
-    name: 'web3.eth.sign',
-    test: () => {
+    name: '签名：web3.eth.sign',
+    msg: '我是签名的原始内容',
+    exspectResult: '0x639c6e61cdab2a6fa4a3775faf6026e1623a3da380044df07918b2191586c16b28b3a49847b18607cece1f8a88205771fb7333b12e86ac83eb8b648679374db51c',
+    test: (task) => {
       return new Promise((resolve, reject) => {
         const address = web3.eth.accounts[0];
-        const msg = '0x12345678';
+        const msg = web3.sha3(task.msg); // 以太坊中SHA3是指Keccak256
         web3.eth.sign(address, msg, (err, result) => {
-          console.log('web3.eth.sign', err, result);
           if (err) {
             reject(err);
           } else {
-            console.log(`web3.eth.sign - ${msg} => ${result}`);
-            // checkMatch(result, '222', resolve, reject)
+            checkMatch(result, task.exspectResult, resolve, reject)
           }
-        })
+        });
         setTimeout(() => reject('timeout'), timeout);
       })
     },
-    desc: '待签名信息：0x12345678',
+    getDesc: (task) => createDesc(task.msg, task.exspectResult)
   },
   {
     name: '签名：personal_sign',
-    test: () => {
+    msg: '我是签名的内容',
+    exspectResult: '0x7141cd351448bb73215ba4db28e7d426545fd35a7a9df43e90d4dd26cbb8034a64f4a46fe36813a010e98ece915ee8203bade68c4124c266e88afe979ca726521b',
+    test: (task) => {
       return new Promise((resolve, reject) => {
         const address = web3.eth.accounts[0];
-        const msg = ethUtil.bufferToHex(Buffer.from('我是签名的内容', 'utf8'));
+        const msg = ethUtil.bufferToHex(Buffer.from(task.msg, 'utf8'));
         const method = 'personal_sign';
         const params = [msg, address];
         web3.currentProvider.sendAsync({
@@ -199,36 +215,33 @@ const tasks = [
             reject(err);
           } else {
             console.log(`签名：personal_sign => ${response.result}`);
-            checkMatch(response.result, '0x7141cd351448bb73215ba4db28e7d426545fd35a7a9df43e90d4dd26cbb8034a64f4a46fe36813a010e98ece915ee8203bade68c4124c266e88afe979ca726521b', resolve, reject)
+            checkMatch(response.result, task.exspectResult, resolve, reject)
           }
         })
         setTimeout(() => reject('timeout'), timeout);
       })
     },
-    desc: `
-      测试地址: ${testAddress}
-      测试密钥: ${testKey}
-      测试消息: 我是签名的内容
-      预期结果: 0x7141cd351448bb73215ba4db28e7d426545fd35a7a9df43e90d4dd26cbb8034a64f4a46fe36813a010e98ece915ee8203bade68c4124c266e88afe979ca726521b
-    `,
+    getDesc: (task) => createDesc(JSON.stringify(task.msg, null, 2), task.exspectResult)
   },
   {
     name: '签名：eth_signTypedData',
-    test: () => {
+    msg: [
+      {
+        type: 'string',
+        name: 'Message',
+        value: 'Hi, Alice!'
+      },
+      {
+        type: 'uint32',
+        name: 'A number',
+        value: '1337'
+      }
+    ],
+    exspectResult: '0x3f8bf9120d935c802de4d0de4ab5815bc13ca80c9403ffa6c5555cb859ef7a280fb600b1ad6b8f9bc442d7d546b5f0f4159198c6846ec53691c3be34f5d27b911b',
+    test: (task) => {
       return new Promise((resolve, reject) => {
         const address = web3.eth.accounts[0];
-        const msg = [
-          {
-            type: 'string',
-            name: 'Message',
-            value: 'Hi, Alice!'
-          },
-          {
-            type: 'uint32',
-            name: 'A number',
-            value: '1337'
-          }
-        ]
+        const msg = task.msg;
         const method = 'eth_signTypedData';
         const params = [msg, address];
         web3.currentProvider.sendAsync({
@@ -241,59 +254,45 @@ const tasks = [
             reject(err);
           } else {
             console.log(`签名：eth_signTypedData => ${response.result}`);
-            checkMatch(response.result, '0x3f8bf9120d935c802de4d0de4ab5815bc13ca80c9403ffa6c5555cb859ef7a280fb600b1ad6b8f9bc442d7d546b5f0f4159198c6846ec53691c3be34f5d27b911b', resolve, reject)
+            checkMatch(response.result, task.exspectResult, resolve, reject)
           }
         })
         setTimeout(() => reject('timeout'), timeout);
       })
     },
-    desc: `
-      测试地址: ${testAddress}
-      测试密钥: ${testKey}
-      测试消息: [
-        {
-          type: 'string',
-          name: 'Message',
-          value: 'Hi, Alice!'
-        },
-        {
-          type: 'uint32',
-          name: 'A number',
-          value: '1337'
-        }
-      ]
-      预期结果: 0x3f8bf9120d935c802de4d0de4ab5815bc13ca80c9403ffa6c5555cb859ef7a280fb600b1ad6b8f9bc442d7d546b5f0f4159198c6846ec53691c3be34f5d27b911b
-    `,
+    getDesc: (task) => createDesc(JSON.stringify(task.msg, null, 2), task.exspectResult)
   },
   {
     name: '签名：eth_signTypedData_v3',
-    test: () => {
+    msg: {types:{
+      EIP712Domain:[
+        {name:"name",type:"string"},
+        {name:"version",type:"string"},
+        {name:"chainId",type:"uint256"},
+        {name:"verifyingContract",type:"address"}
+      ],
+      Person:[
+        {name:"name",type:"string"},
+        {name:"wallet",type:"address"}
+      ],
+      Mail:[
+        {name:"from",type:"Person"},
+        {name:"to",type:"Person"},
+        {name:"contents",type:"string"}
+      ]
+    },
+    primaryType:"Mail",
+    domain:{name:"Ether Mail",version:"1",chainId:"1",verifyingContract:"0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC"},
+    message:{
+      from:{name:"Cow",wallet:"0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826"},
+      to:{name:"Bob",wallet:"0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB"},
+      contents:"Hello, Bob!"}
+    },
+    exspectResult: '0x9e7d129f856bc4f9e07d796fab62c4643c03445559537176acb15ebf045210025b83b3b85321e6dbb84bcb38b453cd527bcae0c3b0f7984b607dcc42bfbce3791b',
+    test: (task) => {
       return new Promise((resolve, reject) => {
         const address = web3.eth.accounts[0];
-        const msg = JSON.stringify({types:{
-          EIP712Domain:[
-            {name:"name",type:"string"},
-            {name:"version",type:"string"},
-            {name:"chainId",type:"uint256"},
-            {name:"verifyingContract",type:"address"}
-          ],
-          Person:[
-            {name:"name",type:"string"},
-            {name:"wallet",type:"address"}
-          ],
-          Mail:[
-            {name:"from",type:"Person"},
-            {name:"to",type:"Person"},
-            {name:"contents",type:"string"}
-          ]
-        },
-        primaryType:"Mail",
-        domain:{name:"Ether Mail",version:"1",chainId:"1",verifyingContract:"0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC"},
-        message:{
-          from:{name:"Cow",wallet:"0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826"},
-          to:{name:"Bob",wallet:"0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB"},
-          contents:"Hello, Bob!"}
-        });
+        const msg = JSON.stringify(task.msg);
         const method = 'eth_signTypedData_v3';
         const params = [address, msg];
         web3.currentProvider.sendAsync({
@@ -306,41 +305,13 @@ const tasks = [
             reject(err);
           } else {
             console.log(`签名：eth_signTypedData_v3 => ${response.result}`);
-            checkMatch(response.result, '0x9e7d129f856bc4f9e07d796fab62c4643c03445559537176acb15ebf045210025b83b3b85321e6dbb84bcb38b453cd527bcae0c3b0f7984b607dcc42bfbce3791b', resolve, reject)
+            checkMatch(response.result, task.exspectResult, resolve, reject)
           }
         })
         setTimeout(() => reject('timeout'), timeout);
       })
     },
-    desc: `
-      测试地址: ${testAddress}
-      测试密钥: ${testKey}
-      测试消息: JSON.stringify({types:{
-        EIP712Domain:[
-          {name:"name",type:"string"},
-          {name:"version",type:"string"},
-          {name:"chainId",type:"uint256"},
-          {name:"verifyingContract",type:"address"}
-        ],
-        Person:[
-          {name:"name",type:"string"},
-          {name:"wallet",type:"address"}
-        ],
-        Mail:[
-          {name:"from",type:"Person"},
-          {name:"to",type:"Person"},
-          {name:"contents",type:"string"}
-        ]
-      },
-      primaryType:"Mail",
-      domain:{name:"Ether Mail",version:"1",chainId:"1",verifyingContract:"0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC"},
-      message:{
-        from:{name:"Cow",wallet:"0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826"},
-        to:{name:"Bob",wallet:"0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB"},
-        contents:"Hello, Bob!"}
-      })
-      预期结果: 0x9e7d129f856bc4f9e07d796fab62c4643c03445559537176acb15ebf045210025b83b3b85321e6dbb84bcb38b453cd527bcae0c3b0f7984b607dcc42bfbce3791b
-    `,
+    getDesc: (task) => createDesc(JSON.stringify(task.msg, null, 2), task.exspectResult)
   },
 ];
 
