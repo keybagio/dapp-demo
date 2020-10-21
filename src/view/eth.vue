@@ -33,7 +33,7 @@
     <div class="task-wrap">
       <div class="task-tips">选择任务</div>
       <div class="task-list">
-        <div v-for="(task, index) in tasks" :key="index" :class="'task-list-item ' + task.status" v-on:click="handleTask(index, task.name, task.test, task.desc)">
+        <div v-for="(task, index) in tasks" :key="index" :class="'task-list-item ' + task.status" v-on:click="handleTask(index, task.name, task.test, task.getDesc ? task.getDesc(task) : '')">
           <div class="number">{{index + 1}}</div>
           <div>{{task.name}}</div>
         </div>
@@ -71,7 +71,7 @@ export default {
       };
 
       try {
-        testFunc().then((response) => {
+        testFunc(this.tasks[taskIndex]).then((response) => {
           this.handleSuccess(taskIndex, taskName, response);
         }).catch((e) => {
           this.handleError(taskIndex, taskName, e);
