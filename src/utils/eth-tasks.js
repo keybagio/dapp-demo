@@ -170,6 +170,40 @@ const tasks = [
     test: () => ethereum.request(req({method: 'eth_uninstallFilter', "params":["0xb"]}))
   },
   {
+    name: '发起交易：eth_sendTransaction',
+    msg: {
+      "gas": "0x4baa6",
+      "value": "0x38d7ea4c68000",
+      "to": "0x7a250d5630b4cf539739df2c5dacb4c659f2488d",
+      "data": "0x7ff36ab50000000000000000000000000000000000000000000000000000000014ecd2d200000000000000000000000000000000000000000000000000000000000000800000000000000000000000000295281d0c71783531af465848c59e7e8a5c8a69000000000000000000000000000000000000000000000000000000005f89b0620000000000000000000000000000000000000000000000000000000000000004000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb480000000000000000000000009f8f72aa9304c8b593d555f12ef6589cc3a579a2000000000000000000000000b6ed7644c69416d67b522e20bc294a9a9b405b31",
+      "from": testAddress,
+    },
+    exspectResult: '未知',
+    test: (task) => {
+      return new Promise((resolve, reject) => {
+        const address = web3.eth.accounts[0];
+        const msg = task.msg;
+        const method = 'eth_sendTransaction';
+        const params = [msg];
+        web3.currentProvider.sendAsync({
+          method,
+          params,
+          from: address,
+        }, (err, response) => {
+          console.log('发起交易：eth_sendTransaction', err, response);
+          if (err) {
+            reject(err);
+          } else {
+            console.log(`发起交易：eth_sendTransaction => ${response.result}`);
+            checkMatch(response.result, task.exspectResult, resolve, reject)
+          }
+        })
+        setTimeout(() => reject('timeout'), timeout);
+      })
+    },
+    getDesc: (task) => createDesc(JSON.stringify(task.msg, null, 2), task.exspectResult)
+  },
+  {
     name: '签名：web3.eth.sign',
     msg: '我是签名的原始内容',
     exspectResult: '0x639c6e61cdab2a6fa4a3775faf6026e1623a3da380044df07918b2191586c16b28b3a49847b18607cece1f8a88205771fb7333b12e86ac83eb8b648679374db51c',
