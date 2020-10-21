@@ -75,33 +75,27 @@ const tasks = [
   {
     name: 'eth_sendTransaction #1 非标准ERC20合约函数',
     test: () => {
+      const address = web3.eth.accounts[0];
+      const param = {
+        from: address,
+        to: '0x7a250d5630b4cf539739df2c5dacb4c659f2488d',
+        gas: '0x4baa6',
+        value: '0x38d7ea4c68000'
+      };
       return new Promise((resolve, reject) => {
-        const address = web3.eth.accounts[0];
-        const msg = [
-          {
-            from: address,
-            to: '0x7a250d5630b4cf539739df2c5dacb4c659f2488d',
-            gas: '0x4baa6',
-            value: '0x38d7ea4c68000',
-            data: ''
-          }
-        ]
-        const method = 'eth_sendTransaction';
-        web3.currentProvider.sendAsync({
-          method,
-          msg,
-          from: address,
-        }, (err, response) => {
-          console.log('eth_sendTransaction', err, response);
-          if (err) {
-            reject(err);
-          } else {
-            console.log(`eth_sendTransaction => ${response.result}`);
-            checkMatch(response.result, '0x3f8bf9120d935c802de4d0de4ab5815bc13ca80c9403ffa6c5555cb859ef7a280fb600b1ad6b8f9bc442d7d546b5f0f4159198c6846ec53691c3be34f5d27b911b', resolve, reject)
-          }
+        ethereum.sendAsync({
+          "method":"eth_sendTransaction",
+          "params":[param],
+          "id":110,
+          "jsonrpc":"2.0"}, (err, response)=> {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(response);
+            }
         })
         setTimeout(() => reject('timeout'), timeout);
-      })
+      });
     }
   },
   {
