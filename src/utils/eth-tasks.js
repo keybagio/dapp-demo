@@ -4,6 +4,12 @@ const web3 = window.web3;
 const testAddress = '0x7D2bCd53CFf1d7aE9c232338AA64D262cBe89a30';
 const testKey = '5a1f2cf0a6fafca3997c1b3916fa9ea12a65764972a217ddb6cea2070dfe76e6';
 const timeout = 8000;
+
+const contractAddress = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D';
+const ercData = '0x095ea7b30000000000000000000000007a250d5630b4cf539739df2c5dacb4c659f2488dffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff';
+const eoaAddress = '0xd58d6a21ce9256a53e3736f62203921cb9667da9';
+const eoaData = '0xcdcd77c000000000000000000000000000000000000000000000000000000000000000450000000000000000000000000000000000000000000000000000000000000001';
+
 // 构造请求体
 const req = (data) => {
   return {
@@ -73,30 +79,208 @@ const checkMatch = (a, b, resolve, reject) => {
  */
 const tasks = [
   {
-    name: 'eth_sendTransaction #1 非标准ERC20合约函数',
-    test: () => {
-      const address = web3.eth.accounts[0];
-      const param = {
-        from: address,
-        to: '0x7a250d5630b4cf539739df2c5dacb4c659f2488d',
-        gas: '0x4baa6',
-        value: '0x38d7ea4c68000'
-      };
+    name: 'eth_sendTransaction - eip20 symbol',
+    msg: {
+      "from": web3.eth.accounts[0],
+      "gas": "0x4baa6",
+      "value": "0x38d7ea4c68000",
+      "to": "0x66186008c1050627f979d464eabb258860563dbe",
+      "data": "0x95d89b41"
+    },
+    exspectResult: '未知',
+    test: (task) => {
       return new Promise((resolve, reject) => {
-        ethereum.sendAsync({
-          "method":"eth_sendTransaction",
-          "params":[param],
-          "id":110,
-          "jsonrpc":"2.0"}, (err, response)=> {
-            if (err) {
-              reject(err);
-            } else {
-              resolve(response);
-            }
+        const address = web3.eth.accounts[0];
+        const msg = task.msg;
+        const method = 'eth_sendTransaction';
+        const params = [msg];
+        web3.currentProvider.sendAsync({
+          method,
+          params,
+          from: address,
+        }, (err, response) => {
+          console.log('发起交易：eth_sendTransaction', err, response);
+          if (err) {
+            reject(err);
+          } else {
+            console.log(`发起交易：eth_sendTransaction => ${response.result}`);
+            checkMatch(response.result, task.exspectResult, resolve, reject)
+          }
         })
         setTimeout(() => reject('timeout'), timeout);
-      });
-    }
+      })
+    },
+    getDesc: (task) => createDesc(JSON.stringify(task.msg, null, 2), task.exspectResult)
+  },
+  {
+    name: 'eth_sendTransaction - eip20 name',
+    msg: {
+      "from": web3.eth.accounts[0],
+      "gas": "0x4baa6",
+      "value": "0x38d7ea4c68000",
+      "to": "0x66186008c1050627f979d464eabb258860563dbe",
+      "data": "0x06fdde03"
+    },
+    exspectResult: '未知',
+    test: (task) => {
+      return new Promise((resolve, reject) => {
+        const address = web3.eth.accounts[0];
+        const msg = task.msg;
+        const method = 'eth_sendTransaction';
+        const params = [msg];
+        web3.currentProvider.sendAsync({
+          method,
+          params,
+          from: address,
+        }, (err, response) => {
+          console.log('发起交易：eth_sendTransaction', err, response);
+          if (err) {
+            reject(err);
+          } else {
+            console.log(`发起交易：eth_sendTransaction => ${response.result}`);
+            checkMatch(response.result, task.exspectResult, resolve, reject)
+          }
+        })
+        setTimeout(() => reject('timeout'), timeout);
+      })
+    },
+    getDesc: (task) => createDesc(JSON.stringify(task.msg, null, 2), task.exspectResult)
+  },
+  {
+    name: 'eth_sendTransaction - eip20 approve',
+    msg: {
+      "from": web3.eth.accounts[0],
+      "gas": "0xbe9f",
+      "value": "0x38d7ea4c68000",
+      "to": "0x66186008c1050627f979d464eabb258860563dbe",
+      "data": "0x095ea7b30000000000000000000000007a250d5630b4cf539739df2c5dacb4c659f2488d00000000000000000000000000000000000000000000000e261a4529a8f40000"
+    },
+    exspectResult: '未知',
+    test: (task) => {
+      return new Promise((resolve, reject) => {
+        const address = web3.eth.accounts[0];
+        const msg = task.msg;
+        const method = 'eth_sendTransaction';
+        const params = [msg];
+        web3.currentProvider.sendAsync({
+          method,
+          params,
+          from: address,
+        }, (err, response) => {
+          console.log('发起交易：eth_sendTransaction', err, response);
+          if (err) {
+            reject(err);
+          } else {
+            console.log(`发起交易：eth_sendTransaction => ${response.result}`);
+            checkMatch(response.result, task.exspectResult, resolve, reject)
+          }
+        })
+        setTimeout(() => reject('timeout'), timeout);
+      })
+    },
+    getDesc: (task) => createDesc(JSON.stringify(task.msg, null, 2), task.exspectResult)
+  },
+  {
+    name: 'eth_sendTransaction - eip20 approve data参数不合法',
+    msg: {
+      "from": web3.eth.accounts[0],
+      "gas": "0xbe9f",
+      "value": "0x38d7ea4c68000",
+      "to": "0x66186008c1050627f979d464eabb258860563dbe",
+      "data": "0x095ea7b30000000000000000000000007a250d5630b4cf539739df2c5dacb4c659f2488d"
+    },
+    exspectResult: '未知',
+    test: (task) => {
+      return new Promise((resolve, reject) => {
+        const address = web3.eth.accounts[0];
+        const msg = task.msg;
+        const method = 'eth_sendTransaction';
+        const params = [msg];
+        web3.currentProvider.sendAsync({
+          method,
+          params,
+          from: address,
+        }, (err, response) => {
+          console.log('发起交易：eth_sendTransaction', err, response);
+          if (err) {
+            reject(err);
+          } else {
+            console.log(`发起交易：eth_sendTransaction => ${response.result}`);
+            checkMatch(response.result, task.exspectResult, resolve, reject)
+          }
+        })
+        setTimeout(() => reject('timeout'), timeout);
+      })
+    },
+    getDesc: (task) => createDesc(JSON.stringify(task.msg, null, 2), task.exspectResult)
+  },
+  {
+    name: 'eth_sendTransaction - eip20 transfer',
+    msg: {
+      "from": web3.eth.accounts[0],
+      "gas": "0x4baa6",
+      "value": "0x38d7ea4c68000",
+      "to": "0x66186008c1050627f979d464eabb258860563dbe",
+      "data": "0xa9059cbb000000000000000000000000fd01573e156026e438fd05e50bf0a0a8a6182ca50000000000000000000000000000000000000000000000000de0b6b3a7640000"
+    },
+    exspectResult: '未知',
+    test: (task) => {
+      return new Promise((resolve, reject) => {
+        const address = web3.eth.accounts[0];
+        const msg = task.msg;
+        const method = 'eth_sendTransaction';
+        const params = [msg];
+        web3.currentProvider.sendAsync({
+          method,
+          params,
+          from: address,
+        }, (err, response) => {
+          console.log('发起交易：eth_sendTransaction', err, response);
+          if (err) {
+            reject(err);
+          } else {
+            console.log(`发起交易：eth_sendTransaction => ${response.result}`);
+            checkMatch(response.result, task.exspectResult, resolve, reject)
+          }
+        })
+        setTimeout(() => reject('timeout'), timeout);
+      })
+    },
+    getDesc: (task) => createDesc(JSON.stringify(task.msg, null, 2), task.exspectResult)
+  },
+  {
+    name: 'eth_sendTransaction - eip20 transferFrom',
+    msg: {
+      "from": web3.eth.accounts[0],
+      "gas": "0x4baa6",
+      "value": "0x38d7ea4c68000",
+      "to": "0x66186008c1050627f979d464eabb258860563dbe",
+      "data": "0x23b872dd0000000000000000000000005c1c9ef1635dce4109199b18c7c459810641e525000000000000000000000000fd01573e156026e438fd05e50bf0a0a8a6182ca50000000000000000000000000000000000000000000000000de0b6b3a7640000"
+    },
+    exspectResult: '未知',
+    test: (task) => {
+      return new Promise((resolve, reject) => {
+        const address = web3.eth.accounts[0];
+        const msg = task.msg;
+        const method = 'eth_sendTransaction';
+        const params = [msg];
+        web3.currentProvider.sendAsync({
+          method,
+          params,
+          from: address,
+        }, (err, response) => {
+          console.log('发起交易：eth_sendTransaction', err, response);
+          if (err) {
+            reject(err);
+          } else {
+            console.log(`发起交易：eth_sendTransaction => ${response.result}`);
+            checkMatch(response.result, task.exspectResult, resolve, reject)
+          }
+        })
+        setTimeout(() => reject('timeout'), timeout);
+      })
+    },
+    getDesc: (task) => createDesc(JSON.stringify(task.msg, null, 2), task.exspectResult)
   },
   {
     name: 'checkExist(window.ethereum)',
@@ -170,13 +354,286 @@ const tasks = [
     test: () => ethereum.request(req({method: 'eth_uninstallFilter', "params":["0xb"]}))
   },
   {
-    name: '发起交易：eth_sendTransaction',
+    name: 'eth_sendTransaction - #1 value有值，data空值',
     msg: {
+      "from": web3.eth.accounts[0],
       "gas": "0x4baa6",
       "value": "0x38d7ea4c68000",
-      "to": "0x7a250d5630b4cf539739df2c5dacb4c659f2488d",
-      "data": "0x7ff36ab50000000000000000000000000000000000000000000000000000000014ecd2d200000000000000000000000000000000000000000000000000000000000000800000000000000000000000000295281d0c71783531af465848c59e7e8a5c8a69000000000000000000000000000000000000000000000000000000005f89b0620000000000000000000000000000000000000000000000000000000000000004000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb480000000000000000000000009f8f72aa9304c8b593d555f12ef6589cc3a579a2000000000000000000000000b6ed7644c69416d67b522e20bc294a9a9b405b31",
-      "from": testAddress,
+      "to": eoaAddress
+    },
+    exspectResult: '未知',
+    test: (task) => {
+      return new Promise((resolve, reject) => {
+        const address = web3.eth.accounts[0];
+        const msg = task.msg;
+        const method = 'eth_sendTransaction';
+        const params = [msg];
+        web3.currentProvider.sendAsync({
+          method,
+          params,
+          from: address,
+        }, (err, response) => {
+          console.log('发起交易：eth_sendTransaction', err, response);
+          if (err) {
+            reject(err);
+          } else {
+            console.log(`发起交易：eth_sendTransaction => ${response.result}`);
+            checkMatch(response.result, task.exspectResult, resolve, reject)
+          }
+        })
+        setTimeout(() => reject('timeout'), timeout);
+      })
+    },
+    getDesc: (task) => createDesc(JSON.stringify(task.msg, null, 2), task.exspectResult)
+  },
+  {
+    name: 'eth_sendTransaction - #2 value空值，data有值非标准erc20',
+    msg: {
+      "from": web3.eth.accounts[0],
+      "gas": "0x4baa6",
+      "to": eoaAddress,
+      "data": eoaData
+    },
+    exspectResult: '未知',
+    test: (task) => {
+      return new Promise((resolve, reject) => {
+        const address = web3.eth.accounts[0];
+        const msg = task.msg;
+        const method = 'eth_sendTransaction';
+        const params = [msg];
+        web3.currentProvider.sendAsync({
+          method,
+          params,
+          from: address,
+        }, (err, response) => {
+          console.log('发起交易：eth_sendTransaction', err, response);
+          if (err) {
+            reject(err);
+          } else {
+            console.log(`发起交易：eth_sendTransaction => ${response.result}`);
+            checkMatch(response.result, task.exspectResult, resolve, reject)
+          }
+        })
+        setTimeout(() => reject('timeout'), timeout);
+      })
+    },
+    getDesc: (task) => createDesc(JSON.stringify(task.msg, null, 2), task.exspectResult)
+  },
+  {
+    name: 'eth_sendTransaction - #3 value有值，data有值非标准erc20',
+    msg: {
+      "from": web3.eth.accounts[0],
+      "gas": "0x4baa6",
+      "value": "0x38d7ea4c68000",
+      "to": eoaAddress,
+      "data": eoaData
+    },
+    exspectResult: '未知',
+    test: (task) => {
+      return new Promise((resolve, reject) => {
+        const address = web3.eth.accounts[0];
+        const msg = task.msg;
+        const method = 'eth_sendTransaction';
+        const params = [msg];
+        web3.currentProvider.sendAsync({
+          method,
+          params,
+          from: address,
+        }, (err, response) => {
+          console.log('发起交易：eth_sendTransaction', err, response);
+          if (err) {
+            reject(err);
+          } else {
+            console.log(`发起交易：eth_sendTransaction => ${response.result}`);
+            checkMatch(response.result, task.exspectResult, resolve, reject)
+          }
+        })
+        setTimeout(() => reject('timeout'), timeout);
+      })
+    },
+    getDesc: (task) => createDesc(JSON.stringify(task.msg, null, 2), task.exspectResult)
+  },
+  {
+    name: 'eth_sendTransaction - #4 value有值，data有值标准erc20',
+    msg: {
+      "from": web3.eth.accounts[0],
+      "gas": "0x4baa6",
+      "value": "0x38d7ea4c68000",
+      "to": contractAddress,
+      "data": ercData
+    },
+    exspectResult: '未知',
+    test: (task) => {
+      return new Promise((resolve, reject) => {
+        const address = web3.eth.accounts[0];
+        const msg = task.msg;
+        const method = 'eth_sendTransaction';
+        const params = [msg];
+        web3.currentProvider.sendAsync({
+          method,
+          params,
+          from: address,
+        }, (err, response) => {
+          console.log('发起交易：eth_sendTransaction', err, response);
+          if (err) {
+            reject(err);
+          } else {
+            console.log(`发起交易：eth_sendTransaction => ${response.result}`);
+            checkMatch(response.result, task.exspectResult, resolve, reject)
+          }
+        })
+        setTimeout(() => reject('timeout'), timeout);
+      })
+    },
+    getDesc: (task) => createDesc(JSON.stringify(task.msg, null, 2), task.exspectResult)
+  },
+  {
+    name: 'eth_sendTransaction - #5 value有值，data有值标准erc20, address: contract',
+    // msg: {
+    //   "from": web3.eth.accounts[0],
+    //   "gas": "0x4baa6",
+    //   "value": "0x38d7ea4c68000",
+    //   "to": contractAddress,
+    //   "data": ercData
+    // },
+    msg: {
+      "from": web3.eth.accounts[0],
+      "gas": "0xbe9f",
+      "value": "0x38d7ea4c68000",
+      "to": "0x66186008c1050627f979d464eabb258860563dbe",
+      "data": "0x095ea7b30000000000000000000000007a250d5630b4cf539739df2c5dacb4c659f2488dffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    exspectResult: '未知',
+    test: (task) => {
+      return new Promise((resolve, reject) => {
+        const address = web3.eth.accounts[0];
+        const msg = task.msg;
+        const method = 'eth_sendTransaction';
+        const params = [msg];
+        web3.currentProvider.sendAsync({
+          method,
+          params,
+          from: address,
+        }, (err, response) => {
+          console.log('发起交易：eth_sendTransaction', err, response);
+          if (err) {
+            reject(err);
+          } else {
+            console.log(`发起交易：eth_sendTransaction => ${response.result}`);
+            checkMatch(response.result, task.exspectResult, resolve, reject)
+          }
+        })
+        setTimeout(() => reject('timeout'), timeout);
+      })
+    },
+    getDesc: (task) => createDesc(JSON.stringify(task.msg, null, 2), task.exspectResult)
+  },
+  {
+    name: 'eth_sendTransaction - #6 value有值，data有值标准erc20, address: EOA',
+    msg: {
+      "from": web3.eth.accounts[0],
+      "gas": "0x4baa6",
+      "value": "0x38d7ea4c68000",
+      "to": eoaAddress,
+      "data": ercData
+    },
+    exspectResult: '未知',
+    test: (task) => {
+      return new Promise((resolve, reject) => {
+        const address = web3.eth.accounts[0];
+        const msg = task.msg;
+        const method = 'eth_sendTransaction';
+        const params = [msg];
+        web3.currentProvider.sendAsync({
+          method,
+          params,
+          from: address,
+        }, (err, response) => {
+          console.log('发起交易：eth_sendTransaction', err, response);
+          if (err) {
+            reject(err);
+          } else {
+            console.log(`发起交易：eth_sendTransaction => ${response.result}`);
+            checkMatch(response.result, task.exspectResult, resolve, reject)
+          }
+        })
+        setTimeout(() => reject('timeout'), timeout);
+      })
+    },
+    getDesc: (task) => createDesc(JSON.stringify(task.msg, null, 2), task.exspectResult)
+  },
+  {
+    name: 'eth_sendTransaction - #7 value空值，data有值标准erc20, address: EOA',
+    msg: {
+      "from": web3.eth.accounts[0],
+      "gas": "0x4baa6",
+      "to": eoaAddress,
+      "data": ercData
+    },
+    exspectResult: '未知',
+    test: (task) => {
+      return new Promise((resolve, reject) => {
+        const address = web3.eth.accounts[0];
+        const msg = task.msg;
+        const method = 'eth_sendTransaction';
+        const params = [msg];
+        web3.currentProvider.sendAsync({
+          method,
+          params,
+          from: address,
+        }, (err, response) => {
+          console.log('发起交易：eth_sendTransaction', err, response);
+          if (err) {
+            reject(err);
+          } else {
+            console.log(`发起交易：eth_sendTransaction => ${response.result}`);
+            checkMatch(response.result, task.exspectResult, resolve, reject)
+          }
+        })
+        setTimeout(() => reject('timeout'), timeout);
+      })
+    },
+    getDesc: (task) => createDesc(JSON.stringify(task.msg, null, 2), task.exspectResult)
+  },
+  {
+    name: 'eth_sendTransaction - #8 value空值，data有非标准erc20, address: EOA',
+    msg: {
+      "from": web3.eth.accounts[0],
+      "gas": "0x4baa6",
+      "to": eoaAddress,
+      "data": eoaData
+    },
+    exspectResult: '未知',
+    test: (task) => {
+      return new Promise((resolve, reject) => {
+        const address = web3.eth.accounts[0];
+        const msg = task.msg;
+        const method = 'eth_sendTransaction';
+        const params = [msg];
+        web3.currentProvider.sendAsync({
+          method,
+          params,
+          from: address,
+        }, (err, response) => {
+          console.log('发起交易：eth_sendTransaction', err, response);
+          if (err) {
+            reject(err);
+          } else {
+            console.log(`发起交易：eth_sendTransaction => ${response.result}`);
+            checkMatch(response.result, task.exspectResult, resolve, reject)
+          }
+        })
+        setTimeout(() => reject('timeout'), timeout);
+      })
+    },
+    getDesc: (task) => createDesc(JSON.stringify(task.msg, null, 2), task.exspectResult)
+  },
+  {
+    name: 'eth_sendTransaction - #9 value空值，data空值, address: EOA',
+    msg: {
+      "from": web3.eth.accounts[0],
+      "gas": "0x4baa6",
+      "to": eoaAddress
     },
     exspectResult: '未知',
     test: (task) => {
