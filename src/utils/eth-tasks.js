@@ -112,6 +112,10 @@ const tasks = [
     test: () => checkExist(window.web3.version)
   },
   {
+    name: 'checkExist(window.web3.version.api)',
+    test: () => checkExist(window.web3.version.api)
+  },
+  {
     name: 'checkExist(window.web3.eth.accounts[0])',
     test: () => checkExist(window.web3.eth.accounts[0])
   },
