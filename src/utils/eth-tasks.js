@@ -100,6 +100,81 @@ const sendTransaction = (task) => {
  */
 const tasks = [
   {
+    name: 'checkExist(window.ethereum)',
+    test: () => checkExist(window.ethereum)
+  },
+  {
+    name: 'checkExist(window.web3)',
+    test: () => checkExist(window.web3)
+  },
+  {
+    name: 'checkExist(window.web3.version)',
+    test: () => checkExist(window.web3.version)
+  },
+  {
+    name: 'checkExist(window.web3.eth.accounts[0])',
+    test: () => checkExist(window.web3.eth.accounts[0])
+  },
+  {
+    name: 'checkExist(window.ethereum.isMetaMask)',
+    test: () => checkExist(window.ethereum.isMetaMask)
+  },
+  {
+    name: 'checkExist(window.ethereum.chainId)',
+    test: () => checkExist(window.ethereum.chainId)
+  },
+  {
+    name: 'checkExist(window.ethereum.networkVersion) (旧)',
+    test: () => checkExist(window.ethereum.networkVersion)
+  },
+  {
+    name: 'checkExist(window.ethereum.selectedAddress) (旧)',
+    test: () => checkExist(window.ethereum.selectedAddress)
+  },
+  {
+    name: 'checkExist(window.ethereum.isConnected())',
+    test: () => checkExist(window.ethereum.isConnected())
+  },
+  {
+    name: 'window.ethereum.enable() (旧)',
+    test: () => window.ethereum.enable()
+  },
+  {
+    name: 'window.ethereum.sendAsync({method: "eth_blockNumber"}) (旧)',
+    test: () => {
+      return new Promise((resolve, reject) => {
+        window.ethereum.sendAsync({method: 'eth_blockNumber', params: []}, (err, response) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(response);
+          }
+        });
+        setTimeout(() => reject('timeout'), timeout);
+      });
+    }
+  },
+  {
+    name: 'request eth_requestAccounts',
+    test: () => window.ethereum.request({method: 'eth_requestAccounts'})
+  },
+  {
+    name: 'request eth_accounts',
+    test: () => window.ethereum.request({method: 'eth_accounts'})
+  },
+  {
+    name: 'request eth_coinbase',
+    test: () => window.ethereum.request({method: 'eth_coinbase'})
+  },
+  {
+    name: 'request net_version',
+    test: () => window.ethereum.request({method: 'net_version'})
+  },
+  {
+    name: 'request eth_uninstallFilter',
+    test: () => window.ethereum.request(req({method: 'eth_uninstallFilter', "params":["0xb"]}))
+  },
+  {
     name: 'eth_sendTransaction - eip20 symbol',
     msg: {
       "from": window.web3.eth.accounts[0],
@@ -176,77 +251,6 @@ const tasks = [
     exspectResult: '未知',
     test: (task) => sendTransaction(task),
     getDesc: (task) => createDesc(JSON.stringify(task.msg, null, 2), task.exspectResult)
-  },
-  {
-    name: 'checkExist(window.ethereum)',
-    test: () => checkExist(window.ethereum)
-  },
-  {
-    name: 'checkExist(window.web3)',
-    test: () => checkExist(window.web3)
-  },
-  {
-    name: 'checkExist(window.web3.eth.accounts[0])',
-    test: () => checkExist(window.web3.eth.accounts[0])
-  },
-  {
-    name: 'checkExist(window.ethereum.isMetaMask)',
-    test: () => checkExist(window.ethereum.isMetaMask)
-  },
-  {
-    name: 'checkExist(window.ethereum.chainId)',
-    test: () => checkExist(window.ethereum.chainId)
-  },
-  {
-    name: 'checkExist(window.ethereum.networkVersion) (旧)',
-    test: () => checkExist(window.ethereum.networkVersion)
-  },
-  {
-    name: 'checkExist(window.ethereum.selectedAddress) (旧)',
-    test: () => checkExist(window.ethereum.selectedAddress)
-  },
-  {
-    name: 'checkExist(window.ethereum.isConnected())',
-    test: () => checkExist(window.ethereum.isConnected())
-  },
-  {
-    name: 'window.ethereum.enable() (旧)',
-    test: () => window.ethereum.enable()
-  },
-  {
-    name: 'window.ethereum.sendAsync({method: "eth_blockNumber"}) (旧)',
-    test: () => {
-      return new Promise((resolve, reject) => {
-        window.ethereum.sendAsync({method: 'eth_blockNumber', params: []}, (err, response) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(response);
-          }
-        });
-        setTimeout(() => reject('timeout'), timeout);
-      });
-    }
-  },
-  {
-    name: 'request eth_requestAccounts',
-    test: () => window.ethereum.request({method: 'eth_requestAccounts'})
-  },
-  {
-    name: 'request eth_accounts',
-    test: () => window.ethereum.request({method: 'eth_accounts'})
-  },
-  {
-    name: 'request eth_coinbase',
-    test: () => window.ethereum.request({method: 'eth_coinbase'})
-  },
-  {
-    name: 'request net_version',
-    test: () => window.ethereum.request({method: 'net_version'})
-  },
-  {
-    name: 'request eth_uninstallFilter',
-    test: () => window.ethereum.request(req({method: 'eth_uninstallFilter', "params":["0xb"]}))
   },
   {
     name: 'eth_sendTransaction - #1 value有值，data空值',
