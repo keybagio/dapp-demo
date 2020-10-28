@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "core-js": "^3.6.5",
+    "eth-simple-keyring": "^4.0.0",
     "ethereumjs-util": "^7.0.7",
     "json-format": "^1.0.1",
     "sass-loader": "^10.0.3",

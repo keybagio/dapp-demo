@@ -1,95 +1,20 @@
-var ethUtil = require('ethereumjs-util')
-const testAddress = '0x7D2bCd53CFf1d7aE9c232338AA64D262cBe89a30';
-const testKey = '5a1f2cf0a6fafca3997c1b3916fa9ea12a65764972a217ddb6cea2070dfe76e6';
-const timeout = 8000;
+import * as ethUtil from 'ethereumjs-util'
+import MetaMaskTasks from './eth-metamask-tasks'
+import {
+  timeout,
+  contractAddress,
+  ercData,
+  eoaAddress,
+  eoaData
+} from '@/config/eth-config'
 
-const contractAddress = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D';
-const ercData = '0x095ea7b30000000000000000000000007a250d5630b4cf539739df2c5dacb4c659f2488dffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff';
-const eoaAddress = '0xd58d6a21ce9256a53e3736f62203921cb9667da9';
-const eoaData = '0xcdcd77c000000000000000000000000000000000000000000000000000000000000000450000000000000000000000000000000000000000000000000000000000000001';
-
-// 构造请求体
-const req = (data) => {
-  return {
-    "jsonrpc": "2.0",
-    "params": [],
-    "id": 10,
-    ...data,
-  }
-}
-
-/**
- * 构造测试说明
- * @param {*} testMessage 
- * @param {*} exspectResult 
- */
-const createDesc = (testMessage, exspectResult) => {
-  return `
-测试地址: ${testAddress}
-测试密钥: ${testKey}
-测试消息: ${testMessage}
-预期结果: ${exspectResult} 
-  `;
-}
-
-/**
- * 检测对象是否存在
- * @param {*} v 检查的对象
- * @returns 返回值（undefined | string | array | JSON object | typeof(v)）
- *  - 
- */
-const checkExist = (v) => {
-  if (typeof v === 'undefined') {
-    return Promise.reject('undefined');
-  }
-
-  if ((typeof v === 'string') || (v instanceof Array)) {
-    return Promise.resolve(v);
-  }
-
-  try {
-    const strV = JSON.stringify(v, null, 2);
-    return Promise.resolve(strV);
-  } catch (e) {
-    // JSON解析出错通过resolve返回类型
-    return Promise.resolve(typeof v);
-  }
-}
-
-const checkMatch = (a, b, resolve, reject) => {
-  console.log('checkMatch ', a, b);
-  try {
-    if (a === b || JSON.stringify(a) === JSON.stringify(b)) {
-      return resolve(true);
-    }
-  } catch (e) {
-    console.log('checkMatch error', e);
-  }
-  return reject(false);
-}
-
-const sendTransaction = (task) => {
-  return new Promise((resolve, reject) => {
-    const address = window.web3.eth.accounts[0];
-    const msg = task.msg;
-    const method = 'eth_sendTransaction';
-    const params = [msg];
-    window.web3.currentProvider.sendAsync({
-      method,
-      params,
-      from: address,
-    }, (err, response) => {
-      console.log('发起交易：eth_sendTransaction', err, response);
-      if (err) {
-        reject(err);
-      } else {
-        console.log(`发起交易：eth_sendTransaction => ${response.result}`);
-        checkMatch(response.result, task.exspectResult, resolve, reject)
-      }
-    })
-    setTimeout(() => reject('timeout'), timeout);
-  })
-}
+import {
+  req,
+  createDesc,
+  checkExist,
+  checkMatch,
+  sendTransaction,
+} from './common'
 
 /**
  * 任务类型：
@@ -516,7 +441,10 @@ const tasks = [
 
 const ETHTasks = {
   getTasks() {
-    return tasks;
+    return [
+      ...tasks,
+      ...MetaMaskTasks,
+    ];
   }
 };
 

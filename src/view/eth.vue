@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import ETHTasks from '@/utils/eth-tasks'
+import ETHTasks from '@/tasks/eth/eth-tasks'
 
 export default {
   name: 'ETH',
