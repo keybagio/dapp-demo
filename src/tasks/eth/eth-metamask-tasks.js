@@ -4,6 +4,7 @@ import {
   timeout,
 } from '@/config/eth-config'
 import {
+  createDesc,
   checkMatch,
 } from './common'
 
@@ -23,7 +24,8 @@ const MetaMaskTasks = [
         })
         setTimeout(() => reject('timeout'), timeout);
       });
-    }
+    },
+    getDesc: (task) => createDesc(JSON.stringify(task.msg, null, 2), task.exspectResult)
   },
 ]
 
