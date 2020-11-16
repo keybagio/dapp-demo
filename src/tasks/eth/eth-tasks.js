@@ -65,6 +65,10 @@ const tasks = [
     test: () => checkExist(window.ethereum.isConnected())
   },
   {
+    name: 'checkExist(window.ethereum._metamask.isEnabled()) (旧)',
+    test: () => checkExist(window.ethereum.isEnabled())
+  },
+  {
     name: 'window.ethereum.enable() (旧)',
     test: () => window.ethereum.enable()
   },
